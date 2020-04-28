@@ -1,0 +1,409 @@
+[
+    {
+        "from": {
+            "name": "Front-end Developer",
+            "duration": 20
+        },
+        "to": {
+            "name": "Front-end Tech Lead",
+            "duration": 4
+        },
+        "url": "https://www.linkedin.com/in/vadimkostenko/"
+    },
+    {
+        "from": {
+            "name": "Intern Kotlin Developer",
+            "duration": 4
+        },
+        "to": {
+            "name": "Junior Kotlin Developer",
+            "duration": 12
+        },
+        "url": "https://www.linkedin.com/in/mikhailyakimchenko/"
+    },
+    {
+        "from": {
+            "name": "Mobile Architect",
+            "duration": 8
+        },
+        "to": {
+            "name": "Head of the mobile core engineering",
+            "duration": 4
+        },
+        "url": "https://www.linkedin.com/in/novixon/"
+    },
+    {
+        "from": {
+            "name": "iOS Team Lead",
+            "duration": 15
+        },
+        "to": {
+            "name": "Mobile Architect",
+            "duration": 8
+        },
+        "url": "https://www.linkedin.com/in/novixon/"
+    },
+    {
+        "from": {
+            "name": "Lead iOS Developer",
+            "duration": 13
+        },
+        "to": {
+            "name": "iOS Team Lead",
+            "duration": 15
+        },
+        "url": "https://www.linkedin.com/in/novixon/"
+    },
+    {
+        "from": {
+            "name": "QA Engineer",
+            "duration": 23
+        },
+        "to": {
+            "name": "Инженер по автоматизации",
+            "duration": 6
+        },
+        "url": "https://www.linkedin.com/in/alexey-beloglazov-882653175/"
+    },
+    {
+        "from": {
+            "name": "Senior iOS Developer",
+            "duration": 10
+        },
+        "to": {
+            "name": "iOS Team Lead",
+            "duration": 21
+        },
+        "url": "https://www.linkedin.com/in/alexey-zverev-6254ba9b/"
+    },
+    {
+        "from": {
+            "name": "iOS Developer",
+            "duration": 17
+        },
+        "to": {
+            "name": "Senior iOS Developer",
+            "duration": 10
+        },
+        "url": "https://www.linkedin.com/in/alexey-zverev-6254ba9b/"
+    },
+    {
+        "from": {
+            "name": "Senior Software Tester",
+            "duration": 6
+        },
+        "to": {
+            "name": "Senior QA Engineer",
+            "duration": 6
+        },
+        "url": "https://www.linkedin.com/in/sklyar-igor/"
+    },
+    {
+        "from": {
+            "name": "Senior Backend Developer",
+            "duration": 34
+        },
+        "to": {
+            "name": "Software Architect",
+            "duration": 12
+        },
+        "url": "https://www.linkedin.com/in/mdykhalkin/"
+    },
+    {
+        "from": {
+            "name": "Backend Developer",
+            "duration": 15
+        },
+        "to": {
+            "name": "Senior Backend Developer",
+            "duration": 34
+        },
+        "url": "https://www.linkedin.com/in/mdykhalkin/"
+    },
+    {
+        "from": {
+            "name": "Junior Backend Developer",
+            "duration": 11
+        },
+        "to": {
+            "name": "Backend Developer",
+            "duration": 15
+        },
+        "url": "https://www.linkedin.com/in/mdykhalkin/"
+    },
+    {
+        "from": {
+            "name": "Senior Front End Engineer",
+            "duration": 32
+        },
+        "to": {
+            "name": "Head Of Software Development",
+            "duration": 23
+        },
+        "url": "https://www.linkedin.com/in/vadimgoncharovru/"
+    },
+    {
+        "from": {
+            "name": "Senior Frontend Developer",
+            "duration": 22
+        },
+        "to": {
+            "name": "Frontend Team Lead",
+            "duration": 20
+        },
+        "url": "https://www.linkedin.com/in/%D0%B8%D0%B2%D0%B0%D0%BD-%D0%B1%D0%BE%D1%82%D0%B0%D0%BD%D0%BE%D0%B2-8a1b05154/"
+    },
+    {
+        "from": {
+            "name": "Аналитик отдела веб-технологий",
+            "duration": 14
+        },
+        "to": {
+            "name": "Старший аналитик",
+            "duration": 13
+        },
+        "url": "https://www.linkedin.com/in/alexander-shevchenko-39036161/"
+    },
+    {
+        "from": {
+            "name": "Аналитик отдела исследований и разработки рекламных проектов",
+            "duration": 7
+        },
+        "to": {
+            "name": "Аналитик отдела веб-технологий",
+            "duration": 14
+        },
+        "url": "https://www.linkedin.com/in/alexander-shevchenko-39036161/"
+    },
+    {
+        "from": {
+            "name": "Head of recruitment",
+            "duration": 31
+        },
+        "to": {
+            "name": "HR Business Partner",
+            "duration": 11
+        },
+        "url": "https://www.linkedin.com/in/ymaximova/"
+    },
+    {
+        "from": {
+            "name": "Software Developer",
+            "duration": 12
+        },
+        "to": {
+            "name": "Lecturer",
+            "duration": 5
+        },
+        "url": "https://www.linkedin.com/in/larionovvadim/"
+    },
+    {
+        "from": {
+            "name": "Senior Big Data Engineer",
+            "duration": 7
+        },
+        "to": {
+            "name": "Big Data Architect",
+            "duration": 3
+        },
+        "url": "https://www.linkedin.com/in/leonid-moiseev/"
+    },
+    {
+        "from": {
+            "name": "Senior Frontend Developer",
+            "duration": 27
+        },
+        "to": {
+            "name": "Principal Frontend Developer",
+            "duration": 18
+        },
+        "url": "https://www.linkedin.com/in/alexey-astafyev-06a7a41b/"
+    },
+    {
+        "from": {
+            "name": "Senior Java developer (team lead)",
+            "duration": 19
+        },
+        "to": {
+            "name": "Architect",
+            "duration": 14
+        },
+        "url": "https://www.linkedin.com/in/klapatniuk/"
+    },
+    {
+        "from": {
+            "name": "Java developer",
+            "duration": 5
+        },
+        "to": {
+            "name": "Senior Java developer (team lead)",
+            "duration": 19
+        },
+        "url": "https://www.linkedin.com/in/klapatniuk/"
+    },
+    {
+        "from": {
+            "name": "Scala Software Engineer",
+            "duration": 16
+        },
+        "to": {
+            "name": "Senior Scala Software Engineer",
+            "duration": 4
+        },
+        "url": "https://www.linkedin.com/in/vladimir-alekseev/"
+    },
+    {
+        "from": {
+            "name": "Frontend Team Lead",
+            "duration": 11
+        },
+        "to": {
+            "name": "Curator",
+            "duration": 19
+        },
+        "url": "https://www.linkedin.com/in/dmitry-korolev/"
+    },
+    {
+        "from": {
+            "name": "Frontend Team Lead",
+            "duration": 8
+        },
+        "to": {
+            "name": "Frontend Team Lead",
+            "duration": 11
+        },
+        "url": "https://www.linkedin.com/in/dmitry-korolev/"
+    },
+    {
+        "from": {
+            "name": "Frontend Tech Lead",
+            "duration": 9
+        },
+        "to": {
+            "name": "Frontend Team Lead",
+            "duration": 8
+        },
+        "url": "https://www.linkedin.com/in/dmitry-korolev/"
+    },
+    {
+        "from": {
+            "name": "Lead Developer",
+            "duration": 8
+        },
+        "to": {
+            "name": "Frontend Tech Lead",
+            "duration": 9
+        },
+        "url": "https://www.linkedin.com/in/dmitry-korolev/"
+    },
+    {
+        "from": {
+            "name": "Lead Developer",
+            "duration": 5
+        },
+        "to": {
+            "name": "Lead Developer",
+            "duration": 8
+        },
+        "url": "https://www.linkedin.com/in/dmitry-korolev/"
+    },
+    {
+        "from": {
+            "name": "Developer",
+            "duration": 11
+        },
+        "to": {
+            "name": "Lead Developer",
+            "duration": 5
+        },
+        "url": "https://www.linkedin.com/in/dmitry-korolev/"
+    },
+    {
+        "from": {
+            "name": "Data Warehouse Architect",
+            "duration": 14
+        },
+        "to": {
+            "name": "Head of Business Intelligence",
+            "duration": 61
+        },
+        "url": "https://www.linkedin.com/in/valeriy-polyakov-5a3632b2/"
+    },
+    {
+        "from": {
+            "name": "Data Quality Analyst/Architect",
+            "duration": 12
+        },
+        "to": {
+            "name": "Data Warehouse Architect",
+            "duration": 14
+        },
+        "url": "https://www.linkedin.com/in/valeriy-polyakov-5a3632b2/"
+    },
+    {
+        "from": {
+            "name": "Lead BI Developer",
+            "duration": 6
+        },
+        "to": {
+            "name": "Data Quality Analyst/Architect",
+            "duration": 12
+        },
+        "url": "https://www.linkedin.com/in/valeriy-polyakov-5a3632b2/"
+    },
+    {
+        "from": {
+            "name": "BI Developer",
+            "duration": 6
+        },
+        "to": {
+            "name": "Lead BI Developer",
+            "duration": 6
+        },
+        "url": "https://www.linkedin.com/in/valeriy-polyakov-5a3632b2/"
+    },
+    {
+        "from": {
+            "name": "QA Specialist",
+            "duration": 12
+        },
+        "to": {
+            "name": "Senior Full Stack QA Specialist",
+            "duration": 18
+        },
+        "url": "https://www.linkedin.com/in/vladislav-vorontsov-000024113/"
+    },
+    {
+        "from": {
+            "name": "Javascript developer",
+            "duration": 12
+        },
+        "to": {
+            "name": "R&D Architect",
+            "duration": 27
+        },
+        "url": "https://www.linkedin.com/in/risentveber/"
+    },
+    {
+        "from": {
+            "name": "Senior Product Designer",
+            "duration": 17
+        },
+        "to": {
+            "name": "Design Lead",
+            "duration": 18
+        },
+        "url": "https://www.linkedin.com/in/anton-smirnov-6999b3182/"
+    },
+    {
+        "from": {
+            "name": "DWH/BI Analyst & Architect",
+            "duration": 13
+        },
+        "to": {
+            "name": "DWH/BI Team Lead",
+            "duration": 13
+        },
+        "url": "https://www.linkedin.com/in/svmukhanov/"
+    }
+]

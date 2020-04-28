@@ -1,0 +1,44 @@
+{
+  "random_sleep_seconds_start": 10,
+  "random_sleep_seconds_stop": 20,
+  "modal_sign_in_button": "//a[contains(@class, \"cta-modal__primary-btn\")]",
+  "sign_up_form_sign_in_link": "//a[@data-tracking-control-name=\"auth_wall_desktop_company-login-toggle\"]",
+  "auth_input_username": "//input[@name=\"session_key\"]",
+  "auth_input_password": "//input[@name=\"session_password\"]",
+  "auth_submit_button": "//button[contains(@class, \"sign-in-form__submit-btn\")]",
+  "input_submit_sign_in": "//input[@id=\"login-submit\"]",
+  "messaging_modal_expanded": "//header[@data-control-name=\"overlay.minimize_connection_list_bar\"]",
+  "close_conversation_window": "//button[@data-control-name=\"overlay.close_conversation_window\"]",
+  "link_to_all_employees": "//a[@data-control-name=\"topcard_see_all_employees\"]",
+  "company_name": "//h1",
+  "global_footer":  "//footer[contains(@class, \"global-footer\")]",
+  "profiles_list": "//li[contains(@class, \"search-result\")]",
+  "employees_pagination_current": "//li[contains(@class, \"artdeco-pagination__indicator\") and contains(@class, \"active\")]//button//span[1]",
+  "employees_pagination_next": "//button[contains(@class, \"artdeco-pagination__button--next\")]",
+  "profile_link": ".//div[contains(@class, \"search-result__info\")]//a[contains(@class, \"search-result__result-link\")]",
+  "profile_link_actor_name": ".//span[contains(@class, \"actor-name\")]",
+  "profile_link_position_name": ".//div[contains(@class, \"search-result__info\")]//a[contains(@class, \"search-result__result-link\")]//following-sibling::p[1]",
+
+  "profile_name": "//ul[contains(@class, \"pv-top-card--list\")][1]//li[1]",
+  "profile_position": "//ul[contains(@class, \"pv-top-card--list\")][1]//following-sibling::h2",
+  "profile_about_show_more_button": "//a[@id=\"line-clamp-show-more-button\"]",
+  "profile_about": "//p[contains(@class, \"pv-about__summary-text\")]",
+
+  "profile_show_more_experience_button": "//div[contains(@class, \"pv-experience-section__see-more\")]//button[contains(@class, \"pv-profile-section__see-more-inline\")]",
+  "profile_experience_rows": "//section[contains(@class, \"pv-position-entity\")]",
+  "profile_show_more_role_button": ".//div[contains(@class, \"pv-profile-section__position-group-pager\")]//button[contains(@class, \"pv-profile-section__see-more-inline\")]",
+
+  "profile_company_name_with_one_position": ".//p[contains(@class, \"pv-entity__secondary-title\")]",
+  "profile_position_name_for_one_position": ".//div[contains(@class, \"pv-entity__summary-info\")]//h3",
+
+  "profile_company_name_with_many_positions": ".//div[contains(@class, \"pv-entity__company-summary-info\")]//h3//span[2]",
+  "profile_company_summary_duration_with_many_positions": ".//div[contains(@class, \"pv-entity__company-summary-info\")]//h4//span[2]",
+  "profile_experience_role_for_many_positions": ".//li[@class=\"pv-entity__position-group-role-item\"]",
+  "profile_position_name_for_many_positions": ".//div[contains(@class, \"pv-entity__summary-info-v2\")]//h3//span[2]",
+
+  "profile_date_range": ".//h4[contains(@class, \"pv-entity__date-range\")]//span[2]",
+  "profile_date_duration": ".//h4[contains(@class, \"pv-entity__date-range\")]//following-sibling::h4//span[2]",
+  "profile_position_location": ".//h4[contains(@class, \"pv-entity__location\")]//span[2]",
+  "profile_position_description": ".//p[contains(@class, \"pv-entity__description\")]",
+  "profile_position_description_show_more": ".//button[contains(@class, \"inline-show-more-text__button\")]"
+}
