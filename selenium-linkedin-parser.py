@@ -15,21 +15,29 @@ from selenium.webdriver.remote.webelement import WebElement
 
 # parse.py —company-url “https://www.linkedin.com/company/mail-ru/“ --selectors selectors.json —out result.json —log out.log
 arguments_parser = argparse.ArgumentParser(description='Parse LinkedIn companies employees')
-arguments_parser.add_argument('-company-url', type=str, help='Company URL', default='')
-arguments_parser.add_argument('-selectors', type=str, help='Config filename', default='selectors.json')
-arguments_parser.add_argument('-out', type=str, help='Filename for errors, not founded selectors, parsing errors etc', default='result.json')
-arguments_parser.add_argument('-log', type=str, help='Company URL', default='out.log')
+arguments_parser.add_argument('-company-url', type=str, help='Company URL', default='', required=True)
+arguments_parser.add_argument('-selectors', type=str, help='Config filename', default='selectors.json', required=True)
+arguments_parser.add_argument('-out', type=str, help='Filename for errors, not founded selectors, parsing errors etc', default='result.json', required=True)
+arguments_parser.add_argument('-log', type=str, help='Company URL', default='out.log', required=True)
 arguments_parser.add_argument('-login', type=str, help='LinkedIn Login', default='', required=True)
 arguments_parser.add_argument('-password', type=str, help='LinkedIn Password', default='', required=True)
+arguments_parser.add_argument('-headless', type=int, choices=[0, 1], help='Show (0) or hide (1) browser window', default=1)
 args = arguments_parser.parse_args()
 
 logging.basicConfig(filename=args.log, level=logging.DEBUG)
+
+
+def logging_info(msg):
+    print(msg)
+    logging.info(msg)
+
 
 if args.company_url == '':
     logging.debug('-company-url parameter required and cannot be empty!')
     sys.exit('-company-url required and cannot be empty!')
 
-logging.info(f'Reading selectors from {args.selectors}')
+
+logging_info(f'Reading selectors from {args.selectors}')
 selectors_json = open(args.selectors, 'r')
 selectors = json.load(selectors_json)
 selectors_json.close()
@@ -37,73 +45,82 @@ selectors_json.close()
 
 def random_sleep():
     sleep_time = random.randint(selectors['random_sleep_seconds_start'], selectors['random_sleep_seconds_stop'])
-    logging.info(f'Sleep {sleep_time} seconds...')
-    print(f'Sleep {sleep_time} seconds...')
+    logging_info(f'Sleep random {sleep_time} seconds...')
     sleep(sleep_time)
 
 
 def send_keys_slowly(element: WebElement, keys: str):
-    logging.info(f'Simulate human entering keys speed into WebElement: {element}')
+    logging_info(f'Simulate human entering keys speed into WebElement: {element}')
     for key in keys:
         element.send_keys(key)
         sleep(0.3)
+    logging_info(f'Entered {keys}')
     sleep(1)
 
 
-def scroll_to_element(element: WebElement):
-    logging.info(f"Scrolling to WebElement {element} \ntag_name: {element.tag_name} text: {element.text}")
+def scroll_to_element(element: WebElement, element_description: str):
+    logging_info(f"Scrolling to WebElement {element_description}")
     actions = ActionChains(browser)
     actions.move_to_element(element).perform()
 
 
 def ctrl_plus_tab():
+    logging_info('Performing CTRL+TAB')
     actions = ActionChains(browser)
     actions.key_down(Keys.CONTROL).key_down(Keys.TAB).key_up(Keys.TAB).key_up(Keys.CONTROL).perform()
 
 
 def enter_login_and_password():
     try:
-        logging.info('Trying to find auth form login input')
+        logging_info('Trying to find auth form login input')
         input_login = browser.find_element_by_xpath(selectors['auth_input_username'])
         send_keys_slowly(input_login, args.login)
     except NoSuchElementException as e:
         logging.debug(f"Cant' find login input {e}")
+        print(f"Cant' find login input")
         sys.exit(f"Cant' find login input {e}")
 
     try:
-        logging.info('Trying to find auth form password input')
+        logging_info('Trying to find auth form password input')
         input_password = browser.find_element_by_xpath(selectors['auth_input_password'])
         send_keys_slowly(input_password, args.password)
     except NoSuchElementException as e:
         logging.debug(f"Cant' find password input {e}")
+        print(f"Cant' find password input")
         sys.exit(f"Cant' find password input {e}")
 
-    print(f'Login and password entered')
-    logging.info(f'Login and password entered')
+    logging_info(f'Login and password entered')
 
 
 def read_json():
+    logging_info(f'Reading data from {args.out}')
     with open(args.out) as json_file:
         return json.load(json_file)
 
 
 def write_json(data):
+    logging_info(f'Writing data to {args.out}')
     with open(args.out, 'w') as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
 
 def parse_location(experience_row: WebElement) -> str:
     try:
-        return experience_row.find_element_by_xpath(selectors['profile_position_location']).text
+        logging_info(f'Parsing profile_position_location')
+        location = experience_row.find_element_by_xpath(selectors['profile_position_location']).text
+        logging_info(f'Parsed {location}')
+        return location
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_location {e}")
+        print(f"Can't find profile_position_location")
         return ''
 
 
 def parse_description(experience_row: WebElement) -> str:
     try:
+        logging_info(f'Parsing profile_position_description')
         description_element = experience_row.find_element_by_xpath(selectors['profile_position_description'])
-        scroll_to_element(description_element)
+        scroll_to_element(description_element, 'profile_position_description')
         description_text = description_element.text
 
         try:
@@ -111,10 +128,12 @@ def parse_description(experience_row: WebElement) -> str:
             description_text = description_text[:-10]
         except NoSuchElementException as e:
             logging.debug(f"Can't find profile_position_description_show_more (it's normal if description is short) {e}")
+            print(f"Can't find profile_position_description_show_more (it's normal if description is short)")
 
         return description_text
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_description (it's normal) {e}")
+        print(f"Can't find profile_position_description (it's normal)")
         return ''
 
 
@@ -127,6 +146,7 @@ def parse_dates_from_to(experience_row: WebElement) -> {str, str}:
         return {'from': '', 'to': ''}
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_date_range {e}")
+        print(f"Can't find profile_date_range")
         return {'from': '', 'to': ''}
 
 
@@ -135,6 +155,7 @@ def parse_duration(experience_row: WebElement) -> str:
         return experience_row.find_element_by_xpath(selectors['profile_date_duration']).text
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_date_duration {e}")
+        print(f"Can't find profile_date_duration")
         return ''
 
 
@@ -143,6 +164,7 @@ def parse_many_position_name(experience_row):
         return experience_row.find_element_by_xpath(selectors['profile_position_name_for_many_positions']).text
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_name_for_many_positions {e}")
+        print(f"Can't find profile_position_name_for_many_positions")
         return ''
 
 
@@ -151,6 +173,7 @@ def parse_one_position_name(experience_row):
         return experience_row.find_element_by_xpath(selectors['profile_position_name_for_one_position']).text
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_name_for_one_position {e}")
+        print(f"Can't find profile_position_name_for_one_position")
         return ''
 
 
@@ -179,7 +202,7 @@ def parse_experience_row(experience_row: WebElement) -> dict:
         experience['positions'].append(position)
     except NoSuchElementException as e:
         experience['company'] = ''
-        logging.info(f"profile_company_name_with_one_position not found {e}")
+        logging_info(f"profile_company_name_with_one_position not found (maybe because it's many positions?) {e}")
 
     # MANY POSITIONS
     try:
@@ -191,10 +214,11 @@ def parse_experience_row(experience_row: WebElement) -> dict:
         except NoSuchElementException as e:
             experience['duration_summary'] = ''
             logging.debug(f"Can't find profile_company_summary_duration_with_many_positions {e}")
+            print(f"Can't find profile_company_summary_duration_with_many_positions")
 
         try:
             for role in experience_row.find_elements_by_xpath(selectors['profile_experience_role_for_many_positions']):
-                scroll_to_element(role)
+                scroll_to_element(role, 'profile_experience_role_for_many_positions role')
                 position = {
                     'name': parse_many_position_name(role),
                     'description': parse_description(role),
@@ -209,9 +233,10 @@ def parse_experience_row(experience_row: WebElement) -> dict:
                 'dates': {'from': '', 'to': '', 'duration': ''}
             })
             logging.debug(f"Can't find profile_experience_role_for_many_positions {e}")
+            print(f"Can't find profile_experience_role_for_many_positions")
 
     except NoSuchElementException as e:
-        logging.info(f'profile_company_name_with_many_positions not found {e}')
+        logging_info(f'profile_company_name_with_many_positions not found {e}')
 
     return experience
 
@@ -223,124 +248,134 @@ def parse_profile():
     except NoSuchElementException as e:
         employee['name'] = ''
         logging.debug(f"Can't find profile_name {e}")
+        print(f"Can't find profile_name")
 
     try:
         profile_about_show_more_button = browser.find_element_by_xpath(selectors['profile_about_show_more_button'])
-        scroll_to_element(profile_about_show_more_button)
+        scroll_to_element(profile_about_show_more_button, 'profile_about_show_more_button')
         profile_about_show_more_button.click()
     except NoSuchElementException as e:
-        logging.info(f"profile_about_show_more_button not found (it's normal if not about or about is short) {e}")
+        logging_info(f"profile_about_show_more_button not found (it's normal if not about or about is short) {e}")
 
     try:
         employee['position'] = browser.find_element_by_xpath(selectors['profile_position']).text
     except NoSuchElementException as e:
         employee['position'] = ''
         logging.debug(f"Can't find profile_position {e}")
+        print(f"Can't find profile_position")
 
     try:
         employee['about'] = browser.find_element_by_xpath(selectors['profile_about']).text
     except NoSuchElementException as e:
         employee['about'] = ''
         logging.debug(f"Can't find profile_about (it may be empty and not exist) {e}")
+        print(f"Can't find profile_about (it may be empty and not exist)")
 
     try:
         show_more_experience_button = browser.find_element_by_xpath(selectors['profile_show_more_experience_button'])
-        scroll_to_element(show_more_experience_button)
+        scroll_to_element(show_more_experience_button, 'profile_show_more_experience_button')
         show_more_experience_button.click()
     except NoSuchElementException as e:
-        logging.info(f"profile_show_more_experience_button not found (it's normal if little positions) {e}")
+        logging_info(f"profile_show_more_experience_button not found (it's normal if little positions) {e}")
 
     try:
         experience_rows = browser.find_elements_by_xpath(selectors['profile_experience_rows'])
         for experience_row in experience_rows:
 
-            scroll_to_element(experience_row)
+            scroll_to_element(experience_row, 'profile_experience_rows row')
             try:
                 show_more_role_button = experience_row.find_element_by_xpath(selectors['profile_show_more_role_button'])
-                scroll_to_element(show_more_role_button)
+                scroll_to_element(show_more_role_button, 'profile_show_more_role_button')
                 show_more_role_button.click()
-                scroll_to_element(experience_row)
+                scroll_to_element(experience_row, 'profile_experience_rows row')
             except NoSuchElementException as e:
-                logging.info(f"profile_show_more_role_button not found (it's normal) {e}")
+                logging_info(f"profile_show_more_role_button not found (it's normal) {e}")
 
             parsed_experience = parse_experience_row(experience_row)
 
             employee['experience'].append(parsed_experience)
     except NoSuchElementException as e:
-        logging.debug(f"Can't find profile_experience_rows s {e}")
+        logging.debug(f"Can't find profile_experience_rows {e}")
+        print(f"Can't find profile_experience_rows")
 
     return employee
 
 
 chrome_options = Options()
 chrome_options.add_argument("--user-data-dir=chrome-data")
-#chrome_options.add_argument("--headless")
+if args.headless == 1:
+    chrome_options.add_argument("--headless")
 browser = webdriver.Chrome(
     executable_path=os.getenv('CHROME_DRIVER', os.path.join(os.path.dirname(__file__), 'chromedriver')),
     options=chrome_options
 )
 browser.set_window_size(1280, 1024)
-logging.info(f'Get request to company url: {args.company_url}')
+logging_info(f'Get request to company url: {args.company_url}')
 browser.get(args.company_url)
 random_sleep()
 
 # Modal auth (page visible)
 # Company page shown but "view all employees" wants sign up (auth modal show at the right bottom)
+skip_sign_up_form_sign_in_link = True
 try:
-    logging.info('Trying to find MODAL with sign up/in links and click on sign in link')
+    logging_info('Trying to find MODAL with sign up/in links and click on sign in link')
     browser.find_element_by_xpath(selectors['modal_sign_in_button']).click()
     random_sleep()
     enter_login_and_password()
     try:
-        logging.info('Click on auth submit button')
+        logging_info('Click on auth_submit_button')
         browser.find_element_by_xpath(selectors['auth_submit_button']).click()
     except NoSuchElementException as e:
-        logging.info(f"Can't find auth_submit_button {e}")
+        logging_info(f"Can't find auth_submit_button {e}")
         sys.exit(f"Can't find auth_submit_button {e}")
 except NoSuchElementException as e:
-    logging.debug(f'Modal sign-in not found. {e}')
+    skip_sign_up_form_sign_in_link = False
+    logging.debug(f'Modal sign-in not found. Already authenticated? {e}')
+    print(f'Modal sign-in not found. Already authenticated?')
 
-# SIGN UP PAGE (Company not visible, page nothing shown and want auth from start)
-try:
-    logging.info('Trying to find SIGN UP FORM with sign in link')
-    browser.find_element_by_xpath(selectors['sign_up_form_sign_in_link']).click()
-    random_sleep()
-    enter_login_and_password()
+if not skip_sign_up_form_sign_in_link:
+    # SIGN UP PAGE (Company not visible, page nothing shown and want auth from start)
     try:
-        logging.info('Click on auth submit button')
-        browser.find_element_by_xpath(selectors['input_submit_sign_in']).click()
+        logging_info('Trying to find SIGN UP FORM with sign in link')
+        browser.find_element_by_xpath(selectors['sign_up_form_sign_in_link']).click()
+        random_sleep()
+        enter_login_and_password()
+        try:
+            logging_info('Click on auth submit button')
+            browser.find_element_by_xpath(selectors['input_submit_sign_in']).click()
+        except NoSuchElementException as e:
+            logging.debug(f"input_submit_sign_in not found! Can't sign in! {e}")
+            sys.exit(f"Can't find input_submit_sign_in {e}")
     except NoSuchElementException as e:
-        logging.debug(f"input_submit_sign_in not found! Can't sign in! {e}")
-        sys.exit(f"Can't find input_submit_sign_in {e}")
-except NoSuchElementException as e:
-    logging.debug(f'Sign up form with sign in link not found. {e}')
+        logging.debug(f'Sign up form with sign in link not found. {e}')
+        print(f'Sign up form with sign in link not found.')
 
-logging.info('Signed In (or already authorized with cookies) successfully')
+logging_info('Signed In (or already authorized with cookies) successfully')
 random_sleep()
 
 try:
-    logging.info(f'Get company name')
+    logging_info(f'Parsing company name')
     company_name = browser.find_element_by_xpath(selectors['company_name']).text
-    logging.info(f'Extracted company name {company_name}')
+    logging_info(f'Extracted company name {company_name}')
 except NoSuchElementException as e:
     logging.debug(f"Can't find company_name {e}")
     sys.exit(f"Can't find company_name {e}")
 
 try:
     browser.find_element_by_xpath(selectors['messaging_modal_expanded']).click()
-    logging.info(f"Messaging modal was closed")
+    logging_info(f"Messaging modal was closed")
 except NoSuchElementException as e:
-    logging.info(f"messaging_modal_expanded not found (it's normal, maybe it was already closed)")
+    logging_info(f"messaging_modal_expanded not found (it's normal, maybe it was already closed)")
 
 try:
     for conversation_window in browser.find_elements_by_xpath(selectors['close_conversation_window']):
-        logging.info(f"{conversation_window.text} closed")
+        logging_info(f"{conversation_window.text} closed")
         conversation_window.click()
 except NoSuchElementException as e:
-    logging.info(f"close_conversation_window not found (it's normal, maybe they not exists)")
+    logging_info(f"close_conversation_window not found (it's normal, maybe they not exists)")
 
 try:
-    logging.info(f'Click on link "See all N employees"')
+    logging_info(f'Click on link "See all N employees"')
     browser.find_element_by_xpath(selectors['link_to_all_employees']).click()
     random_sleep()
 except NoSuchElementException as e:
@@ -357,16 +392,15 @@ last_page = False
 while not last_page:
     # SEE ALL EMPLOYEES.
     try:
-        # First scroll to footer to make all elements visible.
+        logging_info(f'scroll to footer to make all elements visible.')
         global_footer = browser.find_element_by_xpath(selectors['global_footer'])
-        scroll_to_element(global_footer)
+        scroll_to_element(global_footer, 'global_footer')
     except NoSuchElementException as e:
         logging.debug(f"Can't find global_footer")
         sys.exit(f"Can't find global_footer")
     try:
         page_number = browser.find_elements_by_xpath(selectors['employees_pagination_current'])[0].text
-        logging.info(f"Parsing page number {page_number}")
-        print(f"Parsing page number {page_number}")
+        logging_info(f"Parsing page number {page_number}")
     except NoSuchElementException as e:
         logging.debug(f"Can't find employees_pagination_current!")
         sys.exit(f"Can't find employees_pagination_current!")
@@ -374,12 +408,14 @@ while not last_page:
         profiles = browser.find_elements_by_xpath(selectors['profiles_list'])
         for profile in profiles:
             # Profile links added to html only when visible on screen
-            scroll_to_element(profile)
+            scroll_to_element(profile, 'profiles_list profile')
             try:
                 profile_link = profile.find_element_by_xpath(selectors['profile_link'])
 
                 try:
+                    logging_info('Parsing profile_link_actor_name')
                     actor_name = profile_link.find_element_by_xpath(selectors['profile_link_actor_name']).text
+                    logging_info(f'Parsed {actor_name}')
                 except NoSuchElementException as e:
                     logging.debug(f"Can't find profile_link_actor_name!")
                     sys.exit(f"Can't find profile_link_actor_name!")
@@ -389,19 +425,19 @@ while not last_page:
                 except NoSuchElementException as e:
                     profile_link_position_name = ''
                     logging.debug(f"Can't find profile_link_position_name!")
+                    print(f"Can't find profile_link_position_name!")
 
                 if actor_name == 'LinkedIn Member' or actor_name == 'Участник LinkedIn':
-                    logging.info(f"Profile {profile_link_position_name} has limited visibility. Skip iteration.")
+                    logging_info(f"x profile {profile_link_position_name} has limited visibility. Skip iteration.")
                     continue
                 else:
                     profile_link_href = profile_link.get_attribute('href')
-                    # TODO: CHECK IF PROFILE URL EXIST IN RESULT.JSON
+                    logging_info(f'CHECK IF PROFILE {profile_link_href} EXIST IN {args.out}')
                     json_data = read_json()
                     if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
-                        logging.info(f"Opening profile {profile_link.text} {profile_link_href} in new tab.")
-                        # Open the link in a new tab by sending key strokes on the element
+                        logging_info(f'Opening the profile link {profile_link_href} in new tab by sending CTRL+ENTER')
                         profile_link.send_keys(Keys.CONTROL + Keys.RETURN)
-                        # Switch to last opened tab
+                        logging_info(f'Switching to last opened tab')
                         browser.switch_to.window(browser.window_handles[-1])
                         random_sleep()
 
@@ -409,15 +445,19 @@ while not last_page:
                         employee = parse_profile()
                         employee['url'] = profile_link_href
                         json_data['employees'].append(employee)
+                        logging_info(f'{actor_name} appended to existed json_data')
                         write_json(json_data)
 
-                        # Close profile tab
+                        logging_info('Closing profile tab')
                         browser.close()
-                        # Put focus on current window which will be the window opener
+                        logging_info('Put focus on first window')
                         browser.switch_to.window(browser.window_handles[0])
                         sleep(1)
+                    else:
+                        logging_info(f'{actor_name} already exist in {args.out}. Skip.')
             except NoSuchElementException as e:
                 logging.debug(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose' {e}")
+                print(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose'")
 
     except NoSuchElementException as e:
         logging.debug(f"Can't find profiles_list {e}")
@@ -426,15 +466,18 @@ while not last_page:
     try:
         # TODO: NEED CHECK FOR CAPTCHA IN NEW SEARCH PAGINATION PAGE
         pagination_next_button = browser.find_element_by_xpath(selectors['employees_pagination_next'])
-        scroll_to_element(pagination_next_button)
+        scroll_to_element(pagination_next_button, 'employees_pagination_next')
         if pagination_next_button.is_enabled():
+            logging_info('-> Click on next pagination button')
             pagination_next_button.click()
             random_sleep()
         else:
+            logging_info('Pagination next button not found. Assume this is the last page.')
             last_page = True
 
     except NoSuchElementException as e:
-        logging.debug(f"Can't find employees_pagination_next")
+        logging.debug(f"Can't find employees_pagination_next. Exit.")
+        sys.exit(f"Can't find employees_pagination_next. Exit.")
 
 
 browser.close()
