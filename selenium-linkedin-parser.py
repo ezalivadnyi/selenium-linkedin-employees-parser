@@ -370,6 +370,7 @@ try:
     try:
         browser.find_element_by_xpath(selectors['email-pin-submit-button']).click()
         logging_info(f"Clicked on email-pin-submit-button")
+        random_sleep()
     except NoSuchElementException as e:
         logging.debug(f"email-pin-submit-button not found. Can't enter pin. Fix selectors.json {e}")
         sys.exit(f"email-pin-submit-button not found! Can't enter pin. Fix selectors.json")
