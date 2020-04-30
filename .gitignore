@@ -3,3 +3,4 @@ venv
 chrome-data
 out.log
 result.json
+credentials.json
