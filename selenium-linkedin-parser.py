@@ -52,7 +52,6 @@ def send_keys_slowly(element: WebElement, keys: str):
     for key in keys:
         element.send_keys(key)
         sleep(0.3)
-    logging_info(f'Entered {keys}')
     sleep(1)
 
 
