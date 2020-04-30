@@ -308,6 +308,7 @@ def parse_profile():
 
 chrome_options = Options()
 chrome_options.add_argument("--user-data-dir=chrome-data")
+chrome_options.add_argument('--no-sandbox')
 if args.headless == 1:
     chrome_options.add_argument("--headless")
 browser = webdriver.Chrome(
