@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pydevd_pycharm
-pydevd_pycharm.settrace('3.120.227.246', port=12345, stdoutToServer=True, stderrToServer=True)
+pydevd_pycharm.settrace('176.105.222.202', port=12345, stdoutToServer=True, stderrToServer=True)
 import os
 import json
 import logging
