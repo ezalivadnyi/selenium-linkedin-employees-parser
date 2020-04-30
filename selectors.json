@@ -7,6 +7,10 @@
   "auth_input_password": "//input[@name=\"session_password\"]",
   "auth_submit_button": "//button[contains(@class, \"sign-in-form__submit-btn\")]",
   "input_submit_sign_in": "//input[@id=\"login-submit\"]",
+
+  "input__email_verification_pin": "//input[@id=\"input__email_verification_pin\"]",
+  "email-pin-submit-button": "//button[@id=\"email-pin-submit-button\"]",
+
   "messaging_modal_expanded": "//header[@data-control-name=\"overlay.minimize_connection_list_bar\"]",
   "close_conversation_window": "//button[@data-control-name=\"overlay.close_conversation_window\"]",
   "link_to_all_employees": "//a[@data-control-name=\"topcard_see_all_employees\"]",

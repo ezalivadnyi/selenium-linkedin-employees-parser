@@ -19,8 +19,6 @@ arguments_parser.add_argument('-company-url', type=str, help='Company URL', defa
 arguments_parser.add_argument('-selectors', type=str, help='Config filename', default='selectors.json', required=True)
 arguments_parser.add_argument('-out', type=str, help='Filename for errors, not founded selectors, parsing errors etc', default='result.json', required=True)
 arguments_parser.add_argument('-log', type=str, help='Company URL', default='out.log', required=True)
-arguments_parser.add_argument('-login', type=str, help='LinkedIn Login', default='', required=True)
-arguments_parser.add_argument('-password', type=str, help='LinkedIn Password', default='', required=True)
 arguments_parser.add_argument('-headless', type=int, choices=[0, 1], help='Show (0) or hide (1) browser window', default=1)
 args = arguments_parser.parse_args()
 
@@ -70,11 +68,18 @@ def ctrl_plus_tab():
     actions.key_down(Keys.CONTROL).key_down(Keys.TAB).key_up(Keys.TAB).key_up(Keys.CONTROL).perform()
 
 
+def read_credentials_json():
+    logging_info(f'Reading login and password from credentials.json')
+    with open('credentials.json') as json_file:
+        return json.load(json_file)
+
+
 def enter_login_and_password():
+    credentials = read_credentials_json()
     try:
         logging_info('Trying to find auth form login input')
         input_login = browser.find_element_by_xpath(selectors['auth_input_username'])
-        send_keys_slowly(input_login, args.login)
+        send_keys_slowly(input_login, credentials['login'])
     except NoSuchElementException as e:
         logging.debug(f"Cant' find login input {e}")
         print(f"Cant' find login input")
@@ -83,7 +88,7 @@ def enter_login_and_password():
     try:
         logging_info('Trying to find auth form password input')
         input_password = browser.find_element_by_xpath(selectors['auth_input_password'])
-        send_keys_slowly(input_password, args.password)
+        send_keys_slowly(input_password, credentials['password'])
     except NoSuchElementException as e:
         logging.debug(f"Cant' find password input {e}")
         print(f"Cant' find password input")
@@ -323,11 +328,15 @@ try:
     random_sleep()
     enter_login_and_password()
     try:
-        logging_info('Click on auth_submit_button')
-        browser.find_element_by_xpath(selectors['auth_submit_button']).click()
+        browser.find_element_by_xpath('//button[@type="submit"]').click()
     except NoSuchElementException as e:
-        logging_info(f"Can't find auth_submit_button {e}")
-        sys.exit(f"Can't find auth_submit_button {e}")
+        print('//button[@type="submit"] not found')
+        try:
+            logging_info('Trying click on auth_submit_button')
+            browser.find_element_by_xpath(selectors['auth_submit_button']).click()
+        except NoSuchElementException as e:
+            logging_info(f"Can't find auth_submit_button {e}")
+            sys.exit(f"Can't find auth_submit_button {e}")
 except NoSuchElementException as e:
     skip_sign_up_form_sign_in_link = False
     logging.debug(f'Modal sign-in not found. Already authenticated? {e}')
@@ -352,6 +361,20 @@ if not skip_sign_up_form_sign_in_link:
 
 logging_info('Signed In (or already authorized with cookies) successfully')
 random_sleep()
+
+try:
+    input__email_verification_pin = browser.find_element_by_xpath(selectors['input__email_verification_pin'])
+    pin = input(f"Founded input__email_verification_pin! Let's do a quick verification. The login attempt seems "
+                f"suspicious. To finish signing in please enter the verification code we sent to your email address:")
+    send_keys_slowly(input__email_verification_pin, pin)
+    try:
+        browser.find_element_by_xpath(selectors['email-pin-submit-button']).click()
+        logging_info(f"Clicked on email-pin-submit-button")
+    except NoSuchElementException as e:
+        logging.debug(f"email-pin-submit-button not found. Can't enter pin. Fix selectors.json {e}")
+        sys.exit(f"email-pin-submit-button not found! Can't enter pin. Fix selectors.json")
+except NoSuchElementException as e:
+    logging_info(f"Can't find input__email_verification_pin (maybe it's normal)")
 
 try:
     logging_info(f'Parsing company name')
