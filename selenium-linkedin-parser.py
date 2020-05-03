@@ -122,17 +122,20 @@ def parse_location(experience_row: WebElement) -> str:
 
 def parse_description(experience_row: WebElement) -> str:
     try:
+        description_show_more = experience_row.find_element_by_xpath(selectors['profile_position_description_show_more'])
+        scroll_to_element(description_show_more, 'profile_position_description_show_more')
+        description_show_more.click()
+    except NoSuchElementException as e:
+        logging.debug(f"Can't find profile_position_description_show_more (it's normal if description is short) {e}")
+        print(f"Can't find profile_position_description_show_more (it's normal if description is short)")
+
+    try:
         logging_info(f'Parsing profile_position_description')
         description_element = experience_row.find_element_by_xpath(selectors['profile_position_description'])
-        scroll_to_element(description_element, 'profile_position_description')
         description_text = description_element.text
 
-        try:
-            description_element.find_element_by_xpath(selectors['profile_position_description_show_more']).click()
+        if description_text[-10:] in ['.\nСвернуть', '.\nsee less']:
             description_text = description_text[:-10]
-        except NoSuchElementException as e:
-            logging.debug(f"Can't find profile_position_description_show_more (it's normal if description is short) {e}")
-            print(f"Can't find profile_position_description_show_more (it's normal if description is short)")
 
         return description_text
     except NoSuchElementException as e:
@@ -324,16 +327,22 @@ random_sleep()
 skip_sign_up_form_sign_in_link = True
 try:
     logging_info('Trying to find MODAL with sign up/in links and click on sign in link')
-    browser.find_element_by_xpath(selectors['modal_sign_in_button']).click()
+    modal_sign_in_button = browser.find_element_by_xpath(selectors['modal_sign_in_button'])
+    scroll_to_element(modal_sign_in_button, 'modal_sign_in_button')
+    modal_sign_in_button.click()
     random_sleep()
     enter_login_and_password()
     try:
-        browser.find_element_by_xpath('//button[@type="submit"]').click()
+        modal_sign_in_button = browser.find_element_by_xpath('//button[@type="submit"]')
+        scroll_to_element(modal_sign_in_button, 'modal_sign_in_button')
+        modal_sign_in_button.click()
     except NoSuchElementException as e:
         print('//button[@type="submit"] not found')
         try:
             logging_info('Trying click on auth_submit_button')
-            browser.find_element_by_xpath(selectors['auth_submit_button']).click()
+            auth_submit_button = browser.find_element_by_xpath(selectors['auth_submit_button'])
+            scroll_to_element(auth_submit_button, 'auth_submit_button')
+            auth_submit_button.click()
         except NoSuchElementException as e:
             logging_info(f"Can't find auth_submit_button {e}")
             sys.exit(f"Can't find auth_submit_button {e}")
@@ -346,12 +355,16 @@ if not skip_sign_up_form_sign_in_link:
     # SIGN UP PAGE (Company not visible, page nothing shown and want auth from start)
     try:
         logging_info('Trying to find SIGN UP FORM with sign in link')
-        browser.find_element_by_xpath(selectors['sign_up_form_sign_in_link']).click()
+        sign_up_form_sign_in_link = browser.find_element_by_xpath(selectors['sign_up_form_sign_in_link'])
+        scroll_to_element(sign_up_form_sign_in_link, 'sign_up_form_sign_in_link')
+        sign_up_form_sign_in_link.click()
         random_sleep()
         enter_login_and_password()
         try:
             logging_info('Click on auth submit button')
-            browser.find_element_by_xpath(selectors['input_submit_sign_in']).click()
+            input_submit_sign_in = browser.find_element_by_xpath(selectors['input_submit_sign_in'])
+            scroll_to_element(input_submit_sign_in, 'input_submit_sign_in')
+            input_submit_sign_in.click()
         except NoSuchElementException as e:
             logging.debug(f"input_submit_sign_in not found! Can't sign in! {e}")
             sys.exit(f"Can't find input_submit_sign_in {e}")
@@ -368,7 +381,9 @@ try:
                 f"suspicious. To finish signing in please enter the verification code we sent to your email address:")
     send_keys_slowly(input__email_verification_pin, pin)
     try:
-        browser.find_element_by_xpath(selectors['email-pin-submit-button']).click()
+        email_pin_submit_button = browser.find_element_by_xpath(selectors['email-pin-submit-button'])
+        scroll_to_element(email_pin_submit_button, 'email-pin-submit-button')
+        email_pin_submit_button.click()
         logging_info(f"Clicked on email-pin-submit-button")
         random_sleep()
     except NoSuchElementException as e:
@@ -378,15 +393,18 @@ except NoSuchElementException as e:
     logging_info(f"Can't find input__email_verification_pin (maybe it's normal)")
 
 try:
-    browser.find_element_by_xpath(selectors['messaging_modal_expanded']).click()
+    messaging_modal_expanded = browser.find_element_by_xpath(selectors['messaging_modal_expanded'])
+    scroll_to_element(messaging_modal_expanded, 'messaging_modal_expanded')
+    messaging_modal_expanded.click()
     logging_info(f"Messaging modal was closed")
 except NoSuchElementException as e:
     logging_info(f"messaging_modal_expanded not found (it's normal, maybe it was already closed)")
 
 try:
     for conversation_window in browser.find_elements_by_xpath(selectors['close_conversation_window']):
-        logging_info(f"{conversation_window.text} closed")
+        scroll_to_element(conversation_window, 'conversation_window')
         conversation_window.click()
+        logging_info(f"{conversation_window.text} closed")
 except NoSuchElementException as e:
     logging_info(f"close_conversation_window not found (it's normal, maybe they not exists)")
 
@@ -409,7 +427,9 @@ if '/company/' in args.company_url:
 
     try:
         logging_info(f'Click on link "See all N employees"')
-        browser.find_element_by_xpath(selectors['link_to_all_employees']).click()
+        link_to_all_employees = browser.find_element_by_xpath(selectors['link_to_all_employees'])
+        scroll_to_element(link_to_all_employees, 'link_to_all_employees')
+        link_to_all_employees.click()
         random_sleep()
     except NoSuchElementException as e:
         logging.debug(f"Can't find link_to_all_employees {e}")
