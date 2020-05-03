@@ -230,7 +230,7 @@ def parse_experience_row(experience_row: WebElement) -> dict:
         experience['positions'].append(position)
     except NoSuchElementException as e:
         experience['company'] = ''
-        logging_info(f"profile_company_name_with_one_position not found (maybe because it's many positions?) {e}")
+        logging.debug(f"profile_company_name_with_one_position not found (maybe because it's many positions?) {e}")
     except Exception as e:
         experience['company'] = ''
         logging.debug(f"Unknown Exception {e}")
@@ -275,7 +275,7 @@ def parse_experience_row(experience_row: WebElement) -> dict:
             })
 
     except NoSuchElementException as e:
-        logging_info(f'profile_company_name_with_many_positions not found {e}')
+        logging.debug(f'profile_company_name_with_many_positions not found (its normal!) {e}')
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
 
