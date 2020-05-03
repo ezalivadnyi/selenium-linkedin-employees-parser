@@ -21,6 +21,7 @@ arguments_parser.add_argument('-selectors', type=str, help='Config filename', de
 arguments_parser.add_argument('-out', type=str, help='Filename for errors, not founded selectors, parsing errors etc', default='result.json', required=True)
 arguments_parser.add_argument('-log', type=str, help='Log output file', default='out.log', required=True)
 arguments_parser.add_argument('-headless', type=int, choices=[0, 1], help='Show (0) or hide (1) browser window', default=1)
+arguments_parser.add_argument('-page', type=int, default=0, help='Start Pagination Page')
 args = arguments_parser.parse_args()
 
 logging.basicConfig(filename=args.log, level=logging.DEBUG)
@@ -435,6 +436,9 @@ if '/company/' in args.company_url:
         logging.debug(f"Can't find link_to_all_employees {e}")
         sys.exit(f"Can't find link_to_all_employees {e}")
 
+    if args.page != 0:
+        browser.get(f"{browser.current_url}&page={args.page}")
+
     last_page = False
     while not last_page:
         # SEE ALL EMPLOYEES.
@@ -450,7 +454,6 @@ if '/company/' in args.company_url:
             logging_info(f"Parsing page number {page_number}")
         except NoSuchElementException as e:
             logging.debug(f"Can't find employees_pagination_current!")
-            sys.exit(f"Can't find employees_pagination_current!")
         try:
             profiles = browser.find_elements_by_xpath(selectors['profiles_list'])
             for profile in profiles:
