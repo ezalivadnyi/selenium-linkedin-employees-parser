@@ -267,7 +267,6 @@ def parse_experience_row(experience_row: WebElement) -> dict:
                 'dates': {'from': '', 'to': '', 'duration': ''}
             })
             logging.debug(f"Can't find profile_experience_role_for_many_positions {e}")
-            print(f"Can't find profile_experience_role_for_many_positions")
         except Exception as e:
             logging.debug(f"Unknown Exception {e}")
             experience['positions'].append({
@@ -319,7 +318,6 @@ def parse_profile():
     except NoSuchElementException as e:
         employee['about'] = ''
         logging.debug(f"Can't find profile_about (it may be empty and not exist) {e}")
-        print(f"Can't find profile_about (it may be empty and not exist)")
     except Exception as e:
         employee['about'] = ''
         logging.debug(f"Unknown Exception {e}")
@@ -496,9 +494,9 @@ if '/company/' in args.company_url:
         })
 
     try:
-        logging_info(f'Click on link "See all N employees"')
         link_to_all_employees = browser.find_element_by_xpath(selectors['link_to_all_employees'])
         scroll_to_element(link_to_all_employees, 'link_to_all_employees')
+        logging_info(f'Click on link "See all employees"')
         link_to_all_employees.click()
         random_sleep()
     except NoSuchElementException as e:
