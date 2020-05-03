@@ -148,7 +148,6 @@ def parse_description(experience_row: WebElement) -> str:
         return description_text
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_description (it's normal) {e}")
-        print(f"Can't find profile_position_description (it's normal)")
         return ''
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
@@ -301,7 +300,7 @@ def parse_profile():
         scroll_to_element(profile_about_show_more_button, 'profile_about_show_more_button')
         profile_about_show_more_button.click()
     except NoSuchElementException as e:
-        logging_info(f"profile_about_show_more_button not found (it's normal if not about or about is short) {e}")
+        logging.debug(f"profile_about_show_more_button not found (it's normal if not about or about is short) {e}")
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
 
@@ -330,7 +329,7 @@ def parse_profile():
         scroll_to_element(show_more_experience_button, 'profile_show_more_experience_button')
         show_more_experience_button.click()
     except NoSuchElementException as e:
-        logging_info(f"profile_show_more_experience_button not found (it's normal if little positions) {e}")
+        logging.debug(f"profile_show_more_experience_button not found (it's normal if little positions) {e}")
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
 
@@ -345,7 +344,7 @@ def parse_profile():
                 show_more_role_button.click()
                 scroll_to_element(experience_row, 'profile_experience_rows row')
             except NoSuchElementException as e:
-                logging_info(f"profile_show_more_role_button not found (it's normal) {e}")
+                logging.debug(f"profile_show_more_role_button not found (it's normal) {e}")
             except Exception as e:
                 logging.debug(f"Unknown Exception {e}")
 
@@ -455,7 +454,7 @@ try:
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
 except NoSuchElementException as e:
-    logging_info(f"Can't find input__email_verification_pin (maybe it's normal)")
+    logging.debug(f"Can't find input__email_verification_pin (maybe it's normal)")
 
 try:
     messaging_modal_expanded = browser.find_element_by_xpath(selectors['messaging_modal_expanded'])
@@ -463,7 +462,7 @@ try:
     messaging_modal_expanded.click()
     logging_info(f"Messaging modal was closed")
 except NoSuchElementException as e:
-    logging_info(f"messaging_modal_expanded not found (it's normal, maybe it was already closed)")
+    logging.debug(f"messaging_modal_expanded not found (it's normal, maybe it was already closed)")
 except Exception as e:
     logging.debug(f"Unknown Exception {e}")
 
@@ -473,7 +472,7 @@ try:
         conversation_window.click()
         logging_info(f"{conversation_window.text} closed")
 except NoSuchElementException as e:
-    logging_info(f"close_conversation_window not found (it's normal, maybe they not exists)")
+    logging.debug(f"close_conversation_window not found (it's normal, maybe they not exists)")
 except Exception as e:
     logging.debug(f"Unknown Exception {e}")
 
