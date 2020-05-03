@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
+import argparse
+
+arguments_parser = argparse.ArgumentParser(description='Parse results from LinkedIn company -> employees parser with '
+                                                       'many job positions only for parsed company')
+arguments_parser.add_argument('-i', type=str, default='result.json', help='Input json file')
+arguments_parser.add_argument('-o', type=str, default='positions_switch_durations.json', help='Output json file')
+args = arguments_parser.parse_args()
 
 
 def read_json():
-    with open('result.json') as json_file:
+    with open(args.i) as json_file:
         return json.load(json_file)
 
 
@@ -47,5 +54,5 @@ for employee in employees:
                 }
                 data_to_write.append(item)
 
-with open('positions_switch_durations.json', 'w') as file:
+with open(args.o, 'w') as file:
     json.dump(data_to_write, file, indent=4, ensure_ascii=False)

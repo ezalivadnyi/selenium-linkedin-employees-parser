@@ -4,3 +4,4 @@ chrome-data
 out.log
 result.json
 credentials.json
+positions_switch_durations.json
