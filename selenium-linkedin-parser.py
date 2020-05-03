@@ -44,7 +44,7 @@ selectors_json.close()
 
 def random_sleep():
     sleep_time = random.randint(selectors['random_sleep_seconds_start'], selectors['random_sleep_seconds_stop'])
-    logging_info(f'Sleep random {sleep_time} seconds...')
+    logging.info(f'Sleep random {sleep_time} seconds...')
     sleep(sleep_time)
 
 
@@ -57,7 +57,7 @@ def send_keys_slowly(element: WebElement, keys: str):
 
 
 def scroll_to_element(element: WebElement, element_description: str):
-    logging_info(f"Scrolling to {element_description}")
+    logging.debug(f"Scrolling to {element_description}")
     # 116 - header height
     browser.execute_script(f"window.scrollTo(0, {element.location['y']} - window.innerHeight/2 + 116)")
 
@@ -107,23 +107,19 @@ def read_json():
 
 
 def write_json(data):
-    logging_info(f'Writing data to {args.out}')
     with open(args.out, 'w') as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
 
 
 def parse_location(experience_row: WebElement) -> str:
     try:
-        logging_info(f'Parsing profile_position_location')
-        location = experience_row.find_element_by_xpath(selectors['profile_position_location']).text
-        logging_info(f'Parsed {location}')
-        return location
+        return experience_row.find_element_by_xpath(selectors['profile_position_location']).text
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_location {e}")
-        print(f"Can't find profile_position_location")
         return ''
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
+        return ''
 
 
 def parse_description(experience_row: WebElement) -> str:
@@ -133,12 +129,10 @@ def parse_description(experience_row: WebElement) -> str:
         description_show_more.click()
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_description_show_more (it's normal if description is short) {e}")
-        print(f"Can't find profile_position_description_show_more (it's normal if description is short)")
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
 
     try:
-        logging_info(f'Parsing profile_position_description')
         description_element = experience_row.find_element_by_xpath(selectors['profile_position_description'])
         description_text = description_element.text
 
@@ -151,6 +145,7 @@ def parse_description(experience_row: WebElement) -> str:
         return ''
     except Exception as e:
         logging.debug(f"Unknown Exception {e}")
+        return ''
 
 
 def parse_dates_from_to(experience_row: WebElement) -> {str, str}:
@@ -368,7 +363,7 @@ browser = webdriver.Chrome(
     options=chrome_options
 )
 browser.set_window_size(1280, 1024)
-logging_info(f'Get request to company url: {args.company_url}')
+logging_info(f'GET {args.company_url}')
 browser.get(args.company_url)
 random_sleep()
 
@@ -405,7 +400,6 @@ try:
 except NoSuchElementException as e:
     skip_sign_up_form_sign_in_link = False
     logging.debug(f'Modal sign-in not found. Already authenticated? {e}')
-    print(f'Modal sign-in not found. Already authenticated?')
 except Exception as e:
     logging.debug(f"Unknown Exception {e}")
 
@@ -430,7 +424,6 @@ if not skip_sign_up_form_sign_in_link:
             logging.debug(f"Unknown Exception {e}")
     except NoSuchElementException as e:
         logging.debug(f'Sign up form with sign in link not found. {e}')
-        print(f'Sign up form with sign in link not found.')
 
 logging_info('Signed In (or already authorized with cookies) successfully')
 random_sleep()
@@ -478,7 +471,6 @@ except Exception as e:
 if '/company/' in args.company_url:
     logging_info(f"Founded /company/ in url, assume this is company url")
     try:
-        logging_info(f'Parsing company name')
         company_name = browser.find_element_by_xpath(selectors['company_name']).text
         logging_info(f'Extracted company name {company_name}')
     except NoSuchElementException as e:
@@ -496,7 +488,7 @@ if '/company/' in args.company_url:
     try:
         link_to_all_employees = browser.find_element_by_xpath(selectors['link_to_all_employees'])
         scroll_to_element(link_to_all_employees, 'link_to_all_employees')
-        logging_info(f'Click on link "See all employees"')
+        logging_info(f'Click on link "See all employees"\n')
         link_to_all_employees.click()
         random_sleep()
     except NoSuchElementException as e:
@@ -506,14 +498,14 @@ if '/company/' in args.company_url:
         logging.debug(f"Unknown Exception {e}")
 
     if args.page != 0:
-        logging_info(f"Received pagination page argument {args.page}")
-        browser.get(f"{browser.current_url}&page={args.page}")
+        custom_pagination_link = f"{browser.current_url}&page={args.page}"
+        logging_info(f"Received argument pagination page {args.page}.\nOpening custom link: {custom_pagination_link}")
+        browser.get(custom_pagination_link)
 
     last_page = False
     while not last_page:
         # SEE ALL EMPLOYEES.
         try:
-            logging_info(f'scroll to footer to make all elements visible.')
             global_footer = browser.find_element_by_xpath(selectors['global_footer'])
             scroll_to_element(global_footer, 'global_footer')
         except NoSuchElementException as e:
@@ -524,7 +516,7 @@ if '/company/' in args.company_url:
 
         try:
             page_number = browser.find_elements_by_xpath(selectors['employees_pagination_current'])[0].text
-            logging_info(f"Parsing page number {page_number}")
+            logging_info(f"Current pagination page: {page_number}\n")
         except NoSuchElementException as e:
             logging.debug(f"Can't find employees_pagination_current!")
         except Exception as e:
@@ -540,7 +532,6 @@ if '/company/' in args.company_url:
 
                     try:
                         actor_name = profile_link.find_element_by_xpath(selectors['profile_link_actor_name']).text
-                        logging_info(f'Parsed profile_link_actor_name {actor_name}')
                     except NoSuchElementException as e:
                         logging.debug(f"Can't find profile_link_actor_name!")
                         sys.exit(f"Can't find profile_link_actor_name!")
@@ -561,10 +552,9 @@ if '/company/' in args.company_url:
                         continue
                     else:
                         profile_link_href = profile_link.get_attribute('href')
-                        logging_info(f'Check if profile exists in {args.out}')
                         json_data = read_json()
                         if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
-                            logging_info(f'Opening profile {profile_link_href}')
+                            logging_info(f'\n-> Parsing {profile_link_href}')
                             profile_link.send_keys(Keys.CONTROL + Keys.RETURN)
                             browser.switch_to.window(browser.window_handles[-1])
                             random_sleep()
@@ -573,14 +563,14 @@ if '/company/' in args.company_url:
                             employee = parse_profile()
                             employee['url'] = profile_link_href
                             json_data['employees'].append(employee)
-                            logging_info(f'{actor_name} appended to existed json_data')
                             write_json(json_data)
+                            logging_info(f'{actor_name} [{employee["position"]}] appended to {args.out}')
 
                             browser.close()
                             browser.switch_to.window(browser.window_handles[0])
                             sleep(1)
                         else:
-                            logging_info(f'{actor_name} already exist in {args.out}. Skip.')
+                            logging_info(f'x Skip {profile_link_href} ({actor_name}) - already exist in {args.out}.')
                 except NoSuchElementException as e:
                     logging.debug(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose' {e}")
                     print(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose'")
@@ -598,7 +588,7 @@ if '/company/' in args.company_url:
             pagination_next_button = browser.find_element_by_xpath(selectors['employees_pagination_next'])
             scroll_to_element(pagination_next_button, 'employees_pagination_next')
             if pagination_next_button.is_enabled():
-                logging_info('-> Click on next pagination button')
+                logging_info('\nClick on next pagination button')
                 pagination_next_button.click()
                 random_sleep()
             else:
