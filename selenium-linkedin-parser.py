@@ -84,6 +84,8 @@ def enter_login_and_password():
         logging.debug(f"Cant' find login input {e}")
         print(f"Cant' find login input")
         sys.exit(f"Cant' find login input {e}")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         logging_info('Trying to find auth form password input')
@@ -93,6 +95,8 @@ def enter_login_and_password():
         logging.debug(f"Cant' find password input {e}")
         print(f"Cant' find password input")
         sys.exit(f"Cant' find password input {e}")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     logging_info(f'Login and password entered')
 
@@ -119,6 +123,8 @@ def parse_location(experience_row: WebElement) -> str:
         logging.debug(f"Can't find profile_position_location {e}")
         print(f"Can't find profile_position_location")
         return ''
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
 
 def parse_description(experience_row: WebElement) -> str:
@@ -129,6 +135,8 @@ def parse_description(experience_row: WebElement) -> str:
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_description_show_more (it's normal if description is short) {e}")
         print(f"Can't find profile_position_description_show_more (it's normal if description is short)")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         logging_info(f'Parsing profile_position_description')
@@ -143,6 +151,8 @@ def parse_description(experience_row: WebElement) -> str:
         logging.debug(f"Can't find profile_position_description (it's normal) {e}")
         print(f"Can't find profile_position_description (it's normal)")
         return ''
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
 
 def parse_dates_from_to(experience_row: WebElement) -> {str, str}:
@@ -156,6 +166,9 @@ def parse_dates_from_to(experience_row: WebElement) -> {str, str}:
         logging.debug(f"Can't find profile_date_range {e}")
         print(f"Can't find profile_date_range")
         return {'from': '', 'to': ''}
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
+        return {'from': '', 'to': ''}
 
 
 def parse_duration(experience_row: WebElement) -> str:
@@ -164,6 +177,9 @@ def parse_duration(experience_row: WebElement) -> str:
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_date_duration {e}")
         print(f"Can't find profile_date_duration")
+        return ''
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
         return ''
 
 
@@ -174,6 +190,9 @@ def parse_many_position_name(experience_row):
         logging.debug(f"Can't find profile_position_name_for_many_positions {e}")
         print(f"Can't find profile_position_name_for_many_positions")
         return ''
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
+        return ''
 
 
 def parse_one_position_name(experience_row):
@@ -182,6 +201,9 @@ def parse_one_position_name(experience_row):
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_position_name_for_one_position {e}")
         print(f"Can't find profile_position_name_for_one_position")
+        return ''
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
         return ''
 
 
@@ -211,6 +233,9 @@ def parse_experience_row(experience_row: WebElement) -> dict:
     except NoSuchElementException as e:
         experience['company'] = ''
         logging_info(f"profile_company_name_with_one_position not found (maybe because it's many positions?) {e}")
+    except Exception as e:
+        experience['company'] = ''
+        logging.debug(f"Unknown Exception {e}")
 
     # MANY POSITIONS
     try:
@@ -223,6 +248,9 @@ def parse_experience_row(experience_row: WebElement) -> dict:
             experience['duration_summary'] = ''
             logging.debug(f"Can't find profile_company_summary_duration_with_many_positions {e}")
             print(f"Can't find profile_company_summary_duration_with_many_positions")
+        except Exception as e:
+            experience['duration_summary'] = ''
+            logging.debug(f"Unknown Exception {e}")
 
         try:
             for role in experience_row.find_elements_by_xpath(selectors['profile_experience_role_for_many_positions']):
@@ -242,9 +270,17 @@ def parse_experience_row(experience_row: WebElement) -> dict:
             })
             logging.debug(f"Can't find profile_experience_role_for_many_positions {e}")
             print(f"Can't find profile_experience_role_for_many_positions")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
+            experience['positions'].append({
+                'name': '', 'location': '', 'description': '',
+                'dates': {'from': '', 'to': '', 'duration': ''}
+            })
 
     except NoSuchElementException as e:
         logging_info(f'profile_company_name_with_many_positions not found {e}')
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     return experience
 
@@ -257,6 +293,9 @@ def parse_profile():
         employee['name'] = ''
         logging.debug(f"Can't find profile_name {e}")
         print(f"Can't find profile_name")
+    except Exception as e:
+        employee['name'] = ''
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         profile_about_show_more_button = browser.find_element_by_xpath(selectors['profile_about_show_more_button'])
@@ -264,6 +303,8 @@ def parse_profile():
         profile_about_show_more_button.click()
     except NoSuchElementException as e:
         logging_info(f"profile_about_show_more_button not found (it's normal if not about or about is short) {e}")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         employee['position'] = browser.find_element_by_xpath(selectors['profile_position']).text
@@ -271,6 +312,9 @@ def parse_profile():
         employee['position'] = ''
         logging.debug(f"Can't find profile_position {e}")
         print(f"Can't find profile_position")
+    except Exception as e:
+        employee['position'] = ''
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         employee['about'] = browser.find_element_by_xpath(selectors['profile_about']).text
@@ -278,6 +322,9 @@ def parse_profile():
         employee['about'] = ''
         logging.debug(f"Can't find profile_about (it may be empty and not exist) {e}")
         print(f"Can't find profile_about (it may be empty and not exist)")
+    except Exception as e:
+        employee['about'] = ''
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         show_more_experience_button = browser.find_element_by_xpath(selectors['profile_show_more_experience_button'])
@@ -285,6 +332,8 @@ def parse_profile():
         show_more_experience_button.click()
     except NoSuchElementException as e:
         logging_info(f"profile_show_more_experience_button not found (it's normal if little positions) {e}")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     try:
         experience_rows = browser.find_elements_by_xpath(selectors['profile_experience_rows'])
@@ -298,6 +347,8 @@ def parse_profile():
                 scroll_to_element(experience_row, 'profile_experience_rows row')
             except NoSuchElementException as e:
                 logging_info(f"profile_show_more_role_button not found (it's normal) {e}")
+            except Exception as e:
+                logging.debug(f"Unknown Exception {e}")
 
             parsed_experience = parse_experience_row(experience_row)
 
@@ -305,6 +356,8 @@ def parse_profile():
     except NoSuchElementException as e:
         logging.debug(f"Can't find profile_experience_rows {e}")
         print(f"Can't find profile_experience_rows")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     return employee
 
@@ -347,10 +400,18 @@ try:
         except NoSuchElementException as e:
             logging_info(f"Can't find auth_submit_button {e}")
             sys.exit(f"Can't find auth_submit_button {e}")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
+
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
+
 except NoSuchElementException as e:
     skip_sign_up_form_sign_in_link = False
     logging.debug(f'Modal sign-in not found. Already authenticated? {e}')
     print(f'Modal sign-in not found. Already authenticated?')
+except Exception as e:
+    logging.debug(f"Unknown Exception {e}")
 
 if not skip_sign_up_form_sign_in_link:
     # SIGN UP PAGE (Company not visible, page nothing shown and want auth from start)
@@ -369,6 +430,8 @@ if not skip_sign_up_form_sign_in_link:
         except NoSuchElementException as e:
             logging.debug(f"input_submit_sign_in not found! Can't sign in! {e}")
             sys.exit(f"Can't find input_submit_sign_in {e}")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
     except NoSuchElementException as e:
         logging.debug(f'Sign up form with sign in link not found. {e}')
         print(f'Sign up form with sign in link not found.')
@@ -390,6 +453,8 @@ try:
     except NoSuchElementException as e:
         logging.debug(f"email-pin-submit-button not found. Can't enter pin. Fix selectors.json {e}")
         sys.exit(f"email-pin-submit-button not found! Can't enter pin. Fix selectors.json")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 except NoSuchElementException as e:
     logging_info(f"Can't find input__email_verification_pin (maybe it's normal)")
 
@@ -400,6 +465,8 @@ try:
     logging_info(f"Messaging modal was closed")
 except NoSuchElementException as e:
     logging_info(f"messaging_modal_expanded not found (it's normal, maybe it was already closed)")
+except Exception as e:
+    logging.debug(f"Unknown Exception {e}")
 
 try:
     for conversation_window in browser.find_elements_by_xpath(selectors['close_conversation_window']):
@@ -408,6 +475,8 @@ try:
         logging_info(f"{conversation_window.text} closed")
 except NoSuchElementException as e:
     logging_info(f"close_conversation_window not found (it's normal, maybe they not exists)")
+except Exception as e:
+    logging.debug(f"Unknown Exception {e}")
 
 
 if '/company/' in args.company_url:
@@ -419,6 +488,8 @@ if '/company/' in args.company_url:
     except NoSuchElementException as e:
         logging.debug(f"Can't find company_name {e}")
         sys.exit(f"Can't find company_name {e}")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     if not os.path.exists(f'{os.getcwd()}/{args.out}'):
         write_json({
@@ -435,8 +506,11 @@ if '/company/' in args.company_url:
     except NoSuchElementException as e:
         logging.debug(f"Can't find link_to_all_employees {e}")
         sys.exit(f"Can't find link_to_all_employees {e}")
+    except Exception as e:
+        logging.debug(f"Unknown Exception {e}")
 
     if args.page != 0:
+        logging_info(f"Received pagination page argument {args.page}")
         browser.get(f"{browser.current_url}&page={args.page}")
 
     last_page = False
@@ -449,11 +523,17 @@ if '/company/' in args.company_url:
         except NoSuchElementException as e:
             logging.debug(f"Can't find global_footer")
             sys.exit(f"Can't find global_footer")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
+
         try:
             page_number = browser.find_elements_by_xpath(selectors['employees_pagination_current'])[0].text
             logging_info(f"Parsing page number {page_number}")
         except NoSuchElementException as e:
             logging.debug(f"Can't find employees_pagination_current!")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
+
         try:
             profiles = browser.find_elements_by_xpath(selectors['profiles_list'])
             for profile in profiles:
@@ -469,6 +549,8 @@ if '/company/' in args.company_url:
                     except NoSuchElementException as e:
                         logging.debug(f"Can't find profile_link_actor_name!")
                         sys.exit(f"Can't find profile_link_actor_name!")
+                    except Exception as e:
+                        logging.debug(f"Unknown Exception {e}")
 
                     try:
                         profile_link_position_name = profile.find_element_by_xpath(selectors['profile_link_position_name']).text
@@ -476,6 +558,8 @@ if '/company/' in args.company_url:
                         profile_link_position_name = ''
                         logging.debug(f"Can't find profile_link_position_name!")
                         print(f"Can't find profile_link_position_name!")
+                    except Exception as e:
+                        logging.debug(f"Unknown Exception {e}")
 
                     if actor_name == 'LinkedIn Member' or actor_name == 'Участник LinkedIn':
                         logging_info(f"x profile {profile_link_position_name} has limited visibility. Skip iteration.")
@@ -508,10 +592,14 @@ if '/company/' in args.company_url:
                 except NoSuchElementException as e:
                     logging.debug(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose' {e}")
                     print(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose'")
+                except Exception as e:
+                    logging.debug(f"Unknown Exception {e}")
 
         except NoSuchElementException as e:
             logging.debug(f"Can't find profiles_list {e}")
             sys.exit(f"Can't find profiles_list {e}")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
 
         try:
             # TODO: NEED CHECK FOR CAPTCHA IN NEW SEARCH PAGINATION PAGE
@@ -528,6 +616,8 @@ if '/company/' in args.company_url:
         except NoSuchElementException as e:
             logging.debug(f"Can't find employees_pagination_next. Exit.")
             sys.exit(f"Can't find employees_pagination_next. Exit.")
+        except Exception as e:
+            logging.debug(f"Unknown Exception {e}")
 
 elif '/in/' in args.company_url:
     logging_info(f"Founded /in/ in url, assume this is single profile")
