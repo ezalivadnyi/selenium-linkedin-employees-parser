@@ -499,7 +499,7 @@ if '/company/' in args.company_url:
 
     if args.page != 0:
         custom_pagination_link = f"{browser.current_url}&page={args.page}"
-        logging_info(f"Received argument pagination page {args.page}.\nOpening custom link: {custom_pagination_link}")
+        logging_info(f"Received argument -page: {args.page}.\nOpening custom link: {custom_pagination_link}\n")
         browser.get(custom_pagination_link)
 
     last_page = False
@@ -516,7 +516,7 @@ if '/company/' in args.company_url:
 
         try:
             page_number = browser.find_elements_by_xpath(selectors['employees_pagination_current'])[0].text
-            logging_info(f"Current pagination page: {page_number}\n")
+            logging_info(f"Current pagination page: {page_number}")
         except NoSuchElementException as e:
             logging.debug(f"Can't find employees_pagination_current!")
         except Exception as e:
@@ -534,9 +534,10 @@ if '/company/' in args.company_url:
                         actor_name = profile_link.find_element_by_xpath(selectors['profile_link_actor_name']).text
                     except NoSuchElementException as e:
                         logging.debug(f"Can't find profile_link_actor_name!")
-                        sys.exit(f"Can't find profile_link_actor_name!")
+                        actor_name = ''
                     except Exception as e:
                         logging.debug(f"Unknown Exception {e}")
+                        actor_name = ''
 
                     try:
                         profile_link_position_name = profile.find_element_by_xpath(selectors['profile_link_position_name']).text
@@ -545,6 +546,7 @@ if '/company/' in args.company_url:
                         logging.debug(f"Can't find profile_link_position_name!")
                         print(f"Can't find profile_link_position_name!")
                     except Exception as e:
+                        profile_link_position_name = ''
                         logging.debug(f"Unknown Exception {e}")
 
                     if actor_name == 'LinkedIn Member' or actor_name == 'Участник LinkedIn':
@@ -554,7 +556,7 @@ if '/company/' in args.company_url:
                         profile_link_href = profile_link.get_attribute('href')
                         json_data = read_json()
                         if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
-                            logging_info(f'\n-> Parsing {profile_link_href}')
+                            logging_info(f'-> Parsing {profile_link_href}')
                             profile_link.send_keys(Keys.CONTROL + Keys.RETURN)
                             browser.switch_to.window(browser.window_handles[-1])
                             random_sleep()
@@ -564,7 +566,7 @@ if '/company/' in args.company_url:
                             employee['url'] = profile_link_href
                             json_data['employees'].append(employee)
                             write_json(json_data)
-                            logging_info(f'{actor_name} [{employee["position"]}] appended to {args.out}')
+                            logging_info(f'Added to {args.out}: {actor_name} [{employee["position"]}]\n')
 
                             browser.close()
                             browser.switch_to.window(browser.window_handles[0])
