@@ -566,9 +566,8 @@ if '/company/' in args.company_url:
                         logging_info(f'Check if profile exists in {args.out}')
                         json_data = read_json()
                         if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
-                            logging_info(f'Opening the profile link {profile_link_href} in new tab by sending CTRL+ENTER')
+                            logging_info(f'Opening profile {profile_link_href}')
                             profile_link.send_keys(Keys.CONTROL + Keys.RETURN)
-                            logging_info(f'Switching to last opened tab')
                             browser.switch_to.window(browser.window_handles[-1])
                             random_sleep()
 
@@ -579,9 +578,7 @@ if '/company/' in args.company_url:
                             logging_info(f'{actor_name} appended to existed json_data')
                             write_json(json_data)
 
-                            logging_info('Closing profile tab')
                             browser.close()
-                            logging_info('Put focus on first window')
                             browser.switch_to.window(browser.window_handles[0])
                             sleep(1)
                         else:
