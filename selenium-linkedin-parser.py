@@ -16,10 +16,10 @@ from selenium.webdriver.remote.webelement import WebElement
 
 # parse.py —company-url “https://www.linkedin.com/company/mail-ru/“ --selectors selectors.json —out result.json —log out.log
 arguments_parser = argparse.ArgumentParser(description='Parse LinkedIn companies employees')
-arguments_parser.add_argument('-company-url', type=str, help='Company URL', default='', required=True)
+arguments_parser.add_argument('-company-url', type=str, help='Company on profile URL', default='', required=True)
 arguments_parser.add_argument('-selectors', type=str, help='Config filename', default='selectors.json', required=True)
 arguments_parser.add_argument('-out', type=str, help='Filename for errors, not founded selectors, parsing errors etc', default='result.json', required=True)
-arguments_parser.add_argument('-log', type=str, help='Company URL', default='out.log', required=True)
+arguments_parser.add_argument('-log', type=str, help='Log output file', default='out.log', required=True)
 arguments_parser.add_argument('-headless', type=int, choices=[0, 1], help='Show (0) or hide (1) browser window', default=1)
 args = arguments_parser.parse_args()
 
@@ -34,7 +34,6 @@ def logging_info(msg):
 if args.company_url == '':
     logging.debug('-company-url parameter required and cannot be empty!')
     sys.exit('-company-url required and cannot be empty!')
-
 
 logging_info(f'Reading selectors from {args.selectors}')
 selectors_json = open(args.selectors, 'r')
@@ -57,7 +56,7 @@ def send_keys_slowly(element: WebElement, keys: str):
 
 
 def scroll_to_element(element: WebElement, element_description: str):
-    logging_info(f"Scrolling to WebElement {element_description}")
+    logging_info(f"Scrolling to {element_description}")
     actions = ActionChains(browser)
     actions.move_to_element(element).perform()
 
@@ -379,14 +378,6 @@ except NoSuchElementException as e:
     logging_info(f"Can't find input__email_verification_pin (maybe it's normal)")
 
 try:
-    logging_info(f'Parsing company name')
-    company_name = browser.find_element_by_xpath(selectors['company_name']).text
-    logging_info(f'Extracted company name {company_name}')
-except NoSuchElementException as e:
-    logging.debug(f"Can't find company_name {e}")
-    sys.exit(f"Can't find company_name {e}")
-
-try:
     browser.find_element_by_xpath(selectors['messaging_modal_expanded']).click()
     logging_info(f"Messaging modal was closed")
 except NoSuchElementException as e:
@@ -399,111 +390,137 @@ try:
 except NoSuchElementException as e:
     logging_info(f"close_conversation_window not found (it's normal, maybe they not exists)")
 
-try:
-    logging_info(f'Click on link "See all N employees"')
-    browser.find_element_by_xpath(selectors['link_to_all_employees']).click()
-    random_sleep()
-except NoSuchElementException as e:
-    logging.debug(f"Can't find link_to_all_employees {e}")
-    sys.exit(f"Can't find link_to_all_employees {e}")
 
-if not os.path.exists(f'{os.getcwd()}/{args.out}'):
-    write_json({
-        'company': company_name,
-        'employees': []
-    })
-
-last_page = False
-while not last_page:
-    # SEE ALL EMPLOYEES.
+if '/company/' in args.company_url:
+    logging_info(f"Founded /company/ in url, assume this is company url")
     try:
-        logging_info(f'scroll to footer to make all elements visible.')
-        global_footer = browser.find_element_by_xpath(selectors['global_footer'])
-        scroll_to_element(global_footer, 'global_footer')
+        logging_info(f'Parsing company name')
+        company_name = browser.find_element_by_xpath(selectors['company_name']).text
+        logging_info(f'Extracted company name {company_name}')
     except NoSuchElementException as e:
-        logging.debug(f"Can't find global_footer")
-        sys.exit(f"Can't find global_footer")
+        logging.debug(f"Can't find company_name {e}")
+        sys.exit(f"Can't find company_name {e}")
+
+    if not os.path.exists(f'{os.getcwd()}/{args.out}'):
+        write_json({
+            'company': company_name,
+            'employees': []
+        })
+
     try:
-        page_number = browser.find_elements_by_xpath(selectors['employees_pagination_current'])[0].text
-        logging_info(f"Parsing page number {page_number}")
+        logging_info(f'Click on link "See all N employees"')
+        browser.find_element_by_xpath(selectors['link_to_all_employees']).click()
+        random_sleep()
     except NoSuchElementException as e:
-        logging.debug(f"Can't find employees_pagination_current!")
-        sys.exit(f"Can't find employees_pagination_current!")
-    try:
-        profiles = browser.find_elements_by_xpath(selectors['profiles_list'])
-        for profile in profiles:
-            # Profile links added to html only when visible on screen
-            scroll_to_element(profile, 'profiles_list profile')
-            try:
-                profile_link = profile.find_element_by_xpath(selectors['profile_link'])
+        logging.debug(f"Can't find link_to_all_employees {e}")
+        sys.exit(f"Can't find link_to_all_employees {e}")
 
+    last_page = False
+    while not last_page:
+        # SEE ALL EMPLOYEES.
+        try:
+            logging_info(f'scroll to footer to make all elements visible.')
+            global_footer = browser.find_element_by_xpath(selectors['global_footer'])
+            scroll_to_element(global_footer, 'global_footer')
+        except NoSuchElementException as e:
+            logging.debug(f"Can't find global_footer")
+            sys.exit(f"Can't find global_footer")
+        try:
+            page_number = browser.find_elements_by_xpath(selectors['employees_pagination_current'])[0].text
+            logging_info(f"Parsing page number {page_number}")
+        except NoSuchElementException as e:
+            logging.debug(f"Can't find employees_pagination_current!")
+            sys.exit(f"Can't find employees_pagination_current!")
+        try:
+            profiles = browser.find_elements_by_xpath(selectors['profiles_list'])
+            for profile in profiles:
+                # Profile links added to html only when visible on screen
+                scroll_to_element(profile, 'profiles_list profile')
                 try:
-                    logging_info('Parsing profile_link_actor_name')
-                    actor_name = profile_link.find_element_by_xpath(selectors['profile_link_actor_name']).text
-                    logging_info(f'Parsed {actor_name}')
-                except NoSuchElementException as e:
-                    logging.debug(f"Can't find profile_link_actor_name!")
-                    sys.exit(f"Can't find profile_link_actor_name!")
+                    profile_link = profile.find_element_by_xpath(selectors['profile_link'])
 
-                try:
-                    profile_link_position_name = profile.find_element_by_xpath(selectors['profile_link_position_name']).text
-                except NoSuchElementException as e:
-                    profile_link_position_name = ''
-                    logging.debug(f"Can't find profile_link_position_name!")
-                    print(f"Can't find profile_link_position_name!")
+                    try:
+                        logging_info('Parsing profile_link_actor_name')
+                        actor_name = profile_link.find_element_by_xpath(selectors['profile_link_actor_name']).text
+                        logging_info(f'Parsed {actor_name}')
+                    except NoSuchElementException as e:
+                        logging.debug(f"Can't find profile_link_actor_name!")
+                        sys.exit(f"Can't find profile_link_actor_name!")
 
-                if actor_name == 'LinkedIn Member' or actor_name == 'Участник LinkedIn':
-                    logging_info(f"x profile {profile_link_position_name} has limited visibility. Skip iteration.")
-                    continue
-                else:
-                    profile_link_href = profile_link.get_attribute('href')
-                    logging_info(f'CHECK IF PROFILE {profile_link_href} EXIST IN {args.out}')
-                    json_data = read_json()
-                    if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
-                        logging_info(f'Opening the profile link {profile_link_href} in new tab by sending CTRL+ENTER')
-                        profile_link.send_keys(Keys.CONTROL + Keys.RETURN)
-                        logging_info(f'Switching to last opened tab')
-                        browser.switch_to.window(browser.window_handles[-1])
-                        random_sleep()
+                    try:
+                        profile_link_position_name = profile.find_element_by_xpath(selectors['profile_link_position_name']).text
+                    except NoSuchElementException as e:
+                        profile_link_position_name = ''
+                        logging.debug(f"Can't find profile_link_position_name!")
+                        print(f"Can't find profile_link_position_name!")
 
-                        # TODO: NEED CHECK FOR CAPTCHA IN NEW PROFILE TAB
-                        employee = parse_profile()
-                        employee['url'] = profile_link_href
-                        json_data['employees'].append(employee)
-                        logging_info(f'{actor_name} appended to existed json_data')
-                        write_json(json_data)
-
-                        logging_info('Closing profile tab')
-                        browser.close()
-                        logging_info('Put focus on first window')
-                        browser.switch_to.window(browser.window_handles[0])
-                        sleep(1)
+                    if actor_name == 'LinkedIn Member' or actor_name == 'Участник LinkedIn':
+                        logging_info(f"x profile {profile_link_position_name} has limited visibility. Skip iteration.")
+                        continue
                     else:
-                        logging_info(f'{actor_name} already exist in {args.out}. Skip.')
-            except NoSuchElementException as e:
-                logging.debug(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose' {e}")
-                print(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose'")
+                        profile_link_href = profile_link.get_attribute('href')
+                        logging_info(f'CHECK IF PROFILE {profile_link_href} EXIST IN {args.out}')
+                        json_data = read_json()
+                        if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
+                            logging_info(f'Opening the profile link {profile_link_href} in new tab by sending CTRL+ENTER')
+                            profile_link.send_keys(Keys.CONTROL + Keys.RETURN)
+                            logging_info(f'Switching to last opened tab')
+                            browser.switch_to.window(browser.window_handles[-1])
+                            random_sleep()
 
-    except NoSuchElementException as e:
-        logging.debug(f"Can't find profiles_list {e}")
-        sys.exit(f"Can't find profiles_list {e}")
+                            # TODO: NEED CHECK FOR CAPTCHA IN NEW PROFILE TAB
+                            employee = parse_profile()
+                            employee['url'] = profile_link_href
+                            json_data['employees'].append(employee)
+                            logging_info(f'{actor_name} appended to existed json_data')
+                            write_json(json_data)
 
-    try:
-        # TODO: NEED CHECK FOR CAPTCHA IN NEW SEARCH PAGINATION PAGE
-        pagination_next_button = browser.find_element_by_xpath(selectors['employees_pagination_next'])
-        scroll_to_element(pagination_next_button, 'employees_pagination_next')
-        if pagination_next_button.is_enabled():
-            logging_info('-> Click on next pagination button')
-            pagination_next_button.click()
-            random_sleep()
-        else:
-            logging_info('Pagination next button not found. Assume this is the last page.')
-            last_page = True
+                            logging_info('Closing profile tab')
+                            browser.close()
+                            logging_info('Put focus on first window')
+                            browser.switch_to.window(browser.window_handles[0])
+                            sleep(1)
+                        else:
+                            logging_info(f'{actor_name} already exist in {args.out}. Skip.')
+                except NoSuchElementException as e:
+                    logging.debug(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose' {e}")
+                    print(f"Can't find profile_link. Maybe it is because show empty+'try free trial propose'")
 
-    except NoSuchElementException as e:
-        logging.debug(f"Can't find employees_pagination_next. Exit.")
-        sys.exit(f"Can't find employees_pagination_next. Exit.")
+        except NoSuchElementException as e:
+            logging.debug(f"Can't find profiles_list {e}")
+            sys.exit(f"Can't find profiles_list {e}")
 
+        try:
+            # TODO: NEED CHECK FOR CAPTCHA IN NEW SEARCH PAGINATION PAGE
+            pagination_next_button = browser.find_element_by_xpath(selectors['employees_pagination_next'])
+            scroll_to_element(pagination_next_button, 'employees_pagination_next')
+            if pagination_next_button.is_enabled():
+                logging_info('-> Click on next pagination button')
+                pagination_next_button.click()
+                random_sleep()
+            else:
+                logging_info('Pagination next button not found. Assume this is the last page.')
+                last_page = True
 
+        except NoSuchElementException as e:
+            logging.debug(f"Can't find employees_pagination_next. Exit.")
+            sys.exit(f"Can't find employees_pagination_next. Exit.")
+
+elif '/in/' in args.company_url:
+    logging_info(f"Founded /in/ in url, assume this is single profile")
+    employee = parse_profile()
+    employee['url'] = args.company_url
+    logging_info(f'CHECK IF PROFILE {args.company_url} EXIST IN {args.out}')
+    json_data = read_json()
+    if not any(emp['url'] == args.company_url for emp in json_data['employees']):
+        json_data['employees'].append(employee)
+        write_json(json_data)
+        logging_info(f"{employee['name']} not founded in {args.out} and appended as new")
+    else:
+        logging_info(f"{employee['name']} founded in {args.out} and rewrite existed employee data")
+        for index, emp in enumerate(json_data['employees']):
+            if emp['url'] == args.company_url:
+                json_data['employees'][index] = employee
+        write_json(json_data)
 browser.close()
 browser.quit()
