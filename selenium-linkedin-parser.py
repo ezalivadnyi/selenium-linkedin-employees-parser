@@ -58,8 +58,8 @@ def send_keys_slowly(element: WebElement, keys: str):
 
 def scroll_to_element(element: WebElement, element_description: str):
     logging_info(f"Scrolling to {element_description}")
-    actions = ActionChains(browser)
-    actions.move_to_element(element).perform()
+    # 116 - header height
+    browser.execute_script(f"window.scrollTo(0, {element.location['y']} - window.innerHeight/2 + 116)")
 
 
 def ctrl_plus_tab():
@@ -102,7 +102,6 @@ def enter_login_and_password():
 
 
 def read_json():
-    logging_info(f'Reading data from {args.out}')
     with open(args.out) as json_file:
         return json.load(json_file)
 
@@ -538,14 +537,13 @@ if '/company/' in args.company_url:
             profiles = browser.find_elements_by_xpath(selectors['profiles_list'])
             for profile in profiles:
                 # Profile links added to html only when visible on screen
-                scroll_to_element(profile, 'profiles_list profile')
+                scroll_to_element(profile, f'next profiles_list profile')
                 try:
                     profile_link = profile.find_element_by_xpath(selectors['profile_link'])
 
                     try:
-                        logging_info('Parsing profile_link_actor_name')
                         actor_name = profile_link.find_element_by_xpath(selectors['profile_link_actor_name']).text
-                        logging_info(f'Parsed {actor_name}')
+                        logging_info(f'Parsed profile_link_actor_name {actor_name}')
                     except NoSuchElementException as e:
                         logging.debug(f"Can't find profile_link_actor_name!")
                         sys.exit(f"Can't find profile_link_actor_name!")
@@ -566,7 +564,7 @@ if '/company/' in args.company_url:
                         continue
                     else:
                         profile_link_href = profile_link.get_attribute('href')
-                        logging_info(f'CHECK IF PROFILE {profile_link_href} EXIST IN {args.out}')
+                        logging_info(f'Check if profile exists in {args.out}')
                         json_data = read_json()
                         if not any(employee['url'] == profile_link_href for employee in json_data['employees']):
                             logging_info(f'Opening the profile link {profile_link_href} in new tab by sending CTRL+ENTER')
@@ -624,6 +622,7 @@ elif '/in/' in args.company_url:
     employee = parse_profile()
     employee['url'] = args.company_url
     logging_info(f'CHECK IF PROFILE {args.company_url} EXIST IN {args.out}')
+    logging_info(f'Reading data from {args.out}')
     json_data = read_json()
     if not any(emp['url'] == args.company_url for emp in json_data['employees']):
         json_data['employees'].append(employee)
