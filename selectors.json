@@ -1,6 +1,6 @@
 {
-  "random_sleep_seconds_start": 5,
-  "random_sleep_seconds_stop": 10,
+  "random_sleep_seconds_start": 10,
+  "random_sleep_seconds_stop": 20,
   "modal_sign_in_button": "//a[contains(@class, \"cta-modal__primary-btn\")]",
   "sign_up_form_sign_in_link": "//a[@data-tracking-control-name=\"auth_wall_desktop_company-login-toggle\"]",
   "auth_input_username": "//input[@name=\"session_key\"]",
